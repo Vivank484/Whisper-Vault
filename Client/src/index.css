@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- CUSTOM MODERN SCROLLBAR --- */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+/* Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 6px; /* Makes it very thin! */
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Hides the ugly track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3); /* Subtle semi-transparent gray */
+  border-radius: 10px; /* Nice rounded edges */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6); /* Gets slightly darker when you hover over it */
+}
