@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, Send, Heart, ThumbsDown, Share2, Mail, Key, ArrowRight, UserCircle, Sun, Moon, Flame, Clock, MessageSquare, Shield, Eye, EyeOff, Home, Info, BookText, LogOut, Sparkles, Trash2, Bot, AlertTriangle, XCircle } from 'lucide-react';
+import { Lock, Unlock, Send, Heart, ThumbsDown, Share2, Mail, Key, ArrowRight, UserCircle, Sun, Moon, Flame, Clock, MessageSquare, Shield, Eye, EyeOff, Home, Info, BookText, LogOut, Sparkles, Trash2, Bot, AlertTriangle, XCircle, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MOODS = ['Confession', 'Vent', 'Regret', 'Hope', 'Funny'];
@@ -45,6 +45,7 @@ export default function App() {
   const [animatingId, setAnimatingId] = useState(null);
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // 🔥 NEW: Mobile menu state
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -222,7 +223,7 @@ export default function App() {
 
   const theme = {
     bg: isDarkMode ? 'bg-[#06020a]' : 'bg-[#f4f0fa]',
-    sidebar: isDarkMode ? 'bg-[#1a0b2e]/20 backdrop-blur-3xl border-purple-500/30 shadow-[4px_0_24px_rgba(0,0,0,0.5)]' : 'bg-[#a78bfa]/15 backdrop-blur-3xl border-white/60 shadow-[4px_0_24px_rgba(168,85,247,0.15)]',
+    sidebar: isDarkMode ? 'bg-[#1a0b2e]/95 md:bg-[#1a0b2e]/20 backdrop-blur-3xl border-purple-500/30 shadow-[4px_0_24px_rgba(0,0,0,0.5)]' : 'bg-[#f4f0fa]/95 md:bg-[#a78bfa]/15 backdrop-blur-3xl border-white/60 shadow-[4px_0_24px_rgba(168,85,247,0.15)]',
     header: isDarkMode ? 'bg-[#1a0b2e]/20 backdrop-blur-3xl border-b border-purple-500/30 shadow-[0_4px_24px_rgba(0,0,0,0.5)]' : 'bg-[#a78bfa]/15 backdrop-blur-3xl border-b border-white/60 shadow-[0_4px_24px_rgba(168,85,247,0.15)]',
     text: isDarkMode ? 'text-gray-100' : 'text-slate-800',
     card: isDarkMode ? 'bg-[#0f051c]/30 backdrop-blur-2xl border border-purple-500/20 shadow-xl shadow-black/50 hover:border-purple-400/50' : 'bg-white/30 backdrop-blur-2xl border border-white/80 shadow-xl shadow-purple-900/5 hover:border-white hover:shadow-2xl',
@@ -235,8 +236,9 @@ export default function App() {
 
   const activeStyle = MOOD_THEMES[activeMood];
 
+  // 🔥 NEW: Closes the mobile menu when a navigation item is clicked
   const NavItem = ({ icon: Icon, label, isActive, onClick }) => (
-    <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm ${isActive ? theme.activeNav : `${theme.inactiveNav} ${theme.hover}`}`}>
+    <button onClick={() => { onClick(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm ${isActive ? theme.activeNav : `${theme.inactiveNav} ${theme.hover}`}`}>
       <Icon size={18} className={isActive ? 'text-purple-500' : ''} />
       <span>{label}</span>
     </button>
@@ -375,10 +377,30 @@ export default function App() {
         {view === 'feed' && (
           <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-screen w-full relative z-10">
             
-            <aside className={`hidden md:flex flex-col w-[280px] shrink-0 border-r ${theme.sidebar} p-6 overflow-y-auto z-50 transition-colors duration-500`}>
-              <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer relative z-10" onClick={() => !token && setView('landing')}>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-400/50"><Lock className="w-5 h-5 text-white" /></div>
-                <h1 className={`text-xl font-black tracking-tighter ${isDarkMode ? 'text-gray-100' : 'text-purple-950'}`}>WHISPER VAULT</h1>
+            {/* 🔥 NEW: Mobile Menu Dark Overlay */}
+            <AnimatePresence>
+              {isMobileMenuOpen && (
+                <motion.div 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }} 
+                  exit={{ opacity: 0 }} 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden" 
+                />
+              )}
+            </AnimatePresence>
+
+            {/* 🔥 NEW: Sidebar now transforms into a slide-out drawer on mobile! */}
+            <aside className={`${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-[100] flex w-[280px] shadow-2xl shadow-black' : 'hidden md:flex'} flex-col shrink-0 border-r ${theme.sidebar} p-6 overflow-y-auto transition-all duration-300`}>
+              <div className="flex items-center justify-between mb-10 px-2 relative z-10">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => !token && setView('landing')}>
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-400/50"><Lock className="w-5 h-5 text-white" /></div>
+                  <h1 className={`text-xl font-black tracking-tighter ${isDarkMode ? 'text-gray-100' : 'text-purple-950'}`}>WHISPER VAULT</h1>
+                </div>
+                {/* 🔥 NEW: Close button for mobile menu */}
+                <button onClick={() => setIsMobileMenuOpen(false)} className={`md:hidden p-1 rounded-full ${theme.muted} ${theme.hover}`}>
+                  <X size={24}/>
+                </button>
               </div>
               
               <div className="space-y-1 mb-8 relative z-10">
@@ -404,16 +426,23 @@ export default function App() {
 
               <div className={`pt-6 mt-auto border-t ${isDarkMode ? 'border-purple-500/20' : 'border-purple-300/30'} space-y-2 relative z-10`}>
                 <NavItem icon={isDarkMode ? Sun : Moon} label={isDarkMode ? "Light Mode" : "Dark Mode"} isActive={false} onClick={() => setIsDarkMode(!isDarkMode)} />
-                {token ? <NavItem icon={LogOut} label="Lock Vault" isActive={false} onClick={logout} /> : <button onClick={() => setAuthModal('login')} className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] transition-transform border border-purple-400/50">Establish Identity</button>}
+                {token ? <NavItem icon={LogOut} label="Lock Vault" isActive={false} onClick={logout} /> : <button onClick={() => { setAuthModal('login'); setIsMobileMenuOpen(false); }} className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] transition-transform border border-purple-400/50">Establish Identity</button>}
               </div>
             </aside>
 
             <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
               
               <header className={`w-full px-6 md:px-10 py-5 border-b z-40 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-500 ${theme.header}`}>
-                <div>
-                  <h2 className="text-3xl font-black tracking-tight drop-shadow-md">{activeTab === 'global' ? 'Global Feed' : 'Your Private Vault'}</h2>
-                  <p className={`mt-1 text-sm font-medium ${theme.muted}`}>{activeTab === 'global' ? 'Read what the world is hiding.' : 'Your permanently encrypted secrets.'}</p>
+                
+                {/* 🔥 NEW: Mobile Hamburger Button injected into the Header */}
+                <div className="flex justify-between items-center w-full sm:w-auto">
+                  <div>
+                    <h2 className="text-3xl font-black tracking-tight drop-shadow-md">{activeTab === 'global' ? 'Global Feed' : 'Your Private Vault'}</h2>
+                    <p className={`mt-1 text-sm font-medium ${theme.muted}`}>{activeTab === 'global' ? 'Read what the world is hiding.' : 'Your permanently encrypted secrets.'}</p>
+                  </div>
+                  <button onClick={() => setIsMobileMenuOpen(true)} className={`md:hidden p-2 rounded-xl border transition-colors ${isDarkMode ? 'bg-white/5 border-white/10 text-purple-400 hover:bg-white/10' : 'bg-purple-900/5 border-purple-900/10 text-purple-700 hover:bg-purple-900/10'}`}>
+                    <Menu size={24} />
+                  </button>
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-4">
@@ -449,7 +478,7 @@ export default function App() {
                           ))}
                         </div>
                         
-                        <button onClick={handleWhisperClick} disabled={!newSecret.trim() || isAnalyzing} className={`flex items-center gap-2 bg-gradient-to-r ${activeStyle.gradient} shadow-[0_0_15px_rgba(168,85,247,0.3)] border border-purple-400/50 disabled:opacity-50 text-white px-6 py-2.5 rounded-full font-bold hover:scale-105 transition-all duration-300`}>
+                        <button onClick={handleWhisperClick} disabled={!newSecret.trim() || isAnalyzing} className={`flex w-full sm:w-auto items-center justify-center gap-2 bg-gradient-to-r ${activeStyle.gradient} shadow-[0_0_15px_rgba(168,85,247,0.3)] border border-purple-400/50 disabled:opacity-50 text-white px-6 py-2.5 rounded-full font-bold hover:scale-105 transition-all duration-300`}>
                           {isAnalyzing ? <span className="animate-pulse">Analyzing...</span> : <><Send size={16} /> Whisper</>}
                         </button>
                       </div>
