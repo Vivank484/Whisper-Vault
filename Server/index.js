@@ -59,12 +59,30 @@ app.post('/api/auth/register', async (req, res) => {
     
     pendingSignups.set(cleanEmail, { hashedPassword, otp, expiresAt: Date.now() + 10 * 60 * 1000 });
 
-    await transporter.sendMail({
-      from: `"Whisper Vault" <${process.env.EMAIL_USER}>`,
-      to: cleanEmail,
-      subject: "Your Vault Key (Verification Code)",
-      html: `<div style="font-family: sans-serif; text-align: center; padding: 40px; background: #0a0a0a; color: white;"><h1 style="color: #a855f7;">WHISPER VAULT</h1><p style="color: #9ca3af;">Your identity verification code is:</p><h2 style="font-size: 40px; letter-spacing: 5px; color: white;">${otp}</h2><p style="color: #9ca3af;">This code expires in 10 minutes. Do not share it.</p></div>`
-    });
+   // Build the payload for the ready-made EmailJS template
+const emailData = {
+  service_id: process.env.EMAILJS_SERVICE_ID,
+  template_id: process.env.EMAILJS_TEMPLATE_ID,
+  user_id: process.env.EMAILJS_PUBLIC_KEY,
+  accessToken: process.env.EMAILJS_PRIVATE_KEY,
+  template_params: {
+    email: cleanEmail,       // Links to {{email}} in your EmailJS template
+    passcode: otp            // Links to {{passcode}} in your EmailJS template
+  }
+};
+
+// Use standard fetch (HTTP) to bypass the Render SMTP firewall
+const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(emailData)
+});
+
+if (!response.ok) {
+  const errorText = await response.text();
+  console.error('EmailJS Error from Server:', errorText);
+  throw new Error('EmailJS HTTP request failed');
+}
 
     res.json({ requireOtp: true, message: "Code sent!" });
   } catch (err) { res.status(500).json({ error: "Error sending verification code" }); }
