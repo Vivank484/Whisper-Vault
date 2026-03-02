@@ -50,44 +50,46 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password } = req.body;
     const cleanEmail = email.trim().toLowerCase();
-    
+
     const { data: existingUser } = await supabase.from('users').select('id').eq('email', cleanEmail).single();
     if (existingUser) return res.status(400).json({ error: "Email already in use." });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     pendingSignups.set(cleanEmail, { hashedPassword, otp, expiresAt: Date.now() + 10 * 60 * 1000 });
 
-   // Build the payload for the ready-made EmailJS template
-// Build the payload for the ready-made EmailJS template
-const emailData = {
-  service_id: process.env.EMAILJS_SERVICE_ID,
-  template_id: process.env.EMAILJS_TEMPLATE_ID,
-  user_id: process.env.EMAILJS_PUBLIC_KEY,
-  accessToken: process.env.EMAILJS_PRIVATE_KEY,
-  template_params: {
-    email: cleanEmail,       
-    passcode: otp            
+    // Build the payload for EmailJS
+    const emailData = {
+      service_id: process.env.EMAILJS_SERVICE_ID,
+      template_id: process.env.EMAILJS_TEMPLATE_ID,
+      user_id: process.env.EMAILJS_PUBLIC_KEY,
+      accessToken: process.env.EMAILJS_PRIVATE_KEY,
+      template_params: {
+        email: cleanEmail,       
+        passcode: otp            
+      }
+    };
+
+    // Send the email via HTTP
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('EmailJS Error from Server:', errorText);
+      throw new Error('EmailJS HTTP request failed');
+    }
+
+    res.json({ requireOtp: true, message: "Code sent!" });
+  } catch (err) { 
+    console.error("Signup Route Crash:", err);
+    res.status(500).json({ error: "Error sending verification code" }); 
   }
-};
-
-// Use standard fetch (HTTP) to bypass the Render SMTP firewall
-const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(emailData)
 });
-
-if (!response.ok) {
-  const errorText = await response.text();
-  console.error('EmailJS Error from Server:', errorText);
-  throw new Error('EmailJS HTTP request failed');
-}
-
-// 🚨 THIS IS THE LINE I FORGOT! 🚨
-// This tells the React frontend to switch to the OTP screen
-res.json({ requireOtp: true, message: "Code sent!" });
 
 app.post('/api/auth/verify', async (req, res) => {
   try {
