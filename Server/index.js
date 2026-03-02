@@ -60,14 +60,15 @@ app.post('/api/auth/register', async (req, res) => {
     pendingSignups.set(cleanEmail, { hashedPassword, otp, expiresAt: Date.now() + 10 * 60 * 1000 });
 
    // Build the payload for the ready-made EmailJS template
+// Build the payload for the ready-made EmailJS template
 const emailData = {
   service_id: process.env.EMAILJS_SERVICE_ID,
   template_id: process.env.EMAILJS_TEMPLATE_ID,
   user_id: process.env.EMAILJS_PUBLIC_KEY,
   accessToken: process.env.EMAILJS_PRIVATE_KEY,
   template_params: {
-    email: cleanEmail,       // Links to {{email}} in your EmailJS template
-    passcode: otp            // Links to {{passcode}} in your EmailJS template
+    email: cleanEmail,       
+    passcode: otp            
   }
 };
 
@@ -84,9 +85,9 @@ if (!response.ok) {
   throw new Error('EmailJS HTTP request failed');
 }
 
-    res.json({ requireOtp: true, message: "Code sent!" });
-  } catch (err) { res.status(500).json({ error: "Error sending verification code" }); }
-});
+// 🚨 THIS IS THE LINE I FORGOT! 🚨
+// This tells the React frontend to switch to the OTP screen
+res.json({ requireOtp: true, message: "Code sent!" });
 
 app.post('/api/auth/verify', async (req, res) => {
   try {
