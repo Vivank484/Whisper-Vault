@@ -12,6 +12,59 @@ const MOOD_THEMES = {
   Funny: { gradient: 'from-pink-500 to-rose-500', shadow: 'shadow-pink-500/25', glow: 'bg-pink-500/20', badge: 'text-pink-400 bg-pink-500/10 border-pink-500/20' },
 };
 
+const AnimatedKeeperIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 100 100"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ marginRight: '8px' }}
+  >
+    <style>
+      {`
+        @keyframes keeperFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes visorPulse {
+          0%, 100% { filter: drop-shadow(0 0 4px #d8b4fe) brightness(1); }
+          50% { filter: drop-shadow(0 0 12px #d8b4fe) brightness(1.3); }
+        }
+        @keyframes scanLine {
+          0% { transform: translateX(25px); opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { transform: translateX(65px); opacity: 0; }
+        }
+        .head-group { animation: keeperFloat 4s ease-in-out infinite; }
+        .visor-glow { animation: visorPulse 2s infinite; }
+        .scanner-light { animation: scanLine 2.5s linear infinite; }
+      `}
+    </style>
+    
+    <g className="head-group">
+      {/* Cybernetic Helmet Base */}
+      <path d="M50 15 C 20 15, 18 45, 18 65 C 18 85, 35 95, 50 95 C 65 95, 82 85, 82 65 C 82 45, 80 15, 50 15 Z" fill="#18112b" stroke="#d8b4fe" strokeWidth="4" strokeLinejoin="round"/>
+      
+      {/* Cybernetic Jaw / Cheek detailing */}
+      <path d="M 30 90 L 50 80 L 70 90" stroke="#d8b4fe" strokeWidth="2" fill="none" opacity="0.4" />
+      <path d="M 35 70 L 65 70" stroke="#d8b4fe" strokeWidth="2" fill="none" opacity="0.4" />
+
+      {/* Side Ear Nodes */}
+      <rect x="12" y="55" width="6" height="20" rx="3" fill="#d8b4fe" />
+      <rect x="82" y="55" width="6" height="20" rx="3" fill="#d8b4fe" />
+
+      {/* The Glowing Visor Slot */}
+      <rect x="25" y="45" width="50" height="14" rx="7" fill="#3b0764" />
+      <rect x="25" y="45" width="50" height="14" rx="7" fill="#a855f7" className="visor-glow" opacity="0.8" />
+      
+      {/* Moving Scanner Light (The "Eye") */}
+      <ellipse cy="52" rx="4" ry="5" fill="#ffffff" className="scanner-light" filter="drop-shadow(0 0 2px white)" />
+    </g>
+  </svg>
+);
+
 const timeAgo = (dateString) => {
   const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
   let interval = seconds / 31536000;
@@ -559,7 +612,7 @@ export default function App() {
                                     <div key={reply.id} className="text-sm flex justify-between group">
                                       <div className="flex gap-2">
                                         <span className="font-bold flex items-center gap-1">
-                                          {reply.authorId === null ? <><Bot size={14} className="text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]"/> <span className="text-purple-400">Keeper:</span></> : <span className={theme.muted}>Anon:</span>}
+                                          {reply.authorId === null ? <><AnimatedKeeperIcon /> <span className="text-purple-400">Keeper:</span></> : <span className={theme.muted}>Anon:</span>}
                                         </span>
                                         <span className={isDarkMode ? "text-purple-200/80" : "text-slate-700"}>{reply.content}</span>
                                       </div>
@@ -579,21 +632,7 @@ export default function App() {
                                       <button onClick={() => postReply(s.id)} disabled={!replyText.trim()} className="shrink-0 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold disabled:opacity-50 shadow-[0_0_10px_rgba(168,85,247,0.3)]">Post</button>
                                     </div>
                                     <button onClick={() => askKeeper(s.id)} className={`w-full mt-2 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${isDarkMode ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/30' : 'bg-white/50 text-purple-700 hover:bg-white/80 border border-white/80'}`}>
-                                      <svg 
-  width="18" height="18" 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  stroke="currentColor" 
-  strokeWidth="2" 
-  strokeLinecap="round" 
-  strokeLinejoin="round"
-  style={{ marginRight: '8px', filter: 'drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.6))' }}
->
-  <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
-  <circle cx="12" cy="12" r="4" />
-  <line x1="12" y1="2" x2="12" y2="8" />
-  <line x1="12" y1="16" x2="12" y2="22" />
-</svg> Ask Vault Keeper to reply
+                                 <AnimatedKeeperIcon /> Ask Vault Keeper to reply
                                     </button>
                                   </motion.div>
                                 )}
