@@ -579,7 +579,21 @@ export default function App() {
                                       <button onClick={() => postReply(s.id)} disabled={!replyText.trim()} className="shrink-0 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold disabled:opacity-50 shadow-[0_0_10px_rgba(168,85,247,0.3)]">Post</button>
                                     </div>
                                     <button onClick={() => askKeeper(s.id)} className={`w-full mt-2 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${isDarkMode ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/30' : 'bg-white/50 text-purple-700 hover:bg-white/80 border border-white/80'}`}>
-                                      <Bot size={14} /> Ask Vault Keeper to reply
+                                      <svg 
+  width="18" height="18" 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  stroke="currentColor" 
+  strokeWidth="2" 
+  strokeLinecap="round" 
+  strokeLinejoin="round"
+  style={{ marginRight: '8px', filter: 'drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.6))' }}
+>
+  <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+  <circle cx="12" cy="12" r="4" />
+  <line x1="12" y1="2" x2="12" y2="8" />
+  <line x1="12" y1="16" x2="12" y2="22" />
+</svg> Ask Vault Keeper to reply
                                     </button>
                                   </motion.div>
                                 )}
