@@ -278,22 +278,23 @@ const handleReaction = async (secretId, type) => {
     return secret;
   }));
 
-  // 2. SILENT BACKGROUND UPDATE
+ // 2. SILENT BACKGROUND UPDATE
   try {
-    // ⚠️ Keep whatever your existing fetch or supabase call was here!
-    await fetch(`${API_URL}/reactions`, {
+    const response = await fetch(`${API_URL}/secrets/${secretId}/react`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}` 
       },
-      body: JSON.stringify({ secretId, type })
+      body: JSON.stringify({ type }) // We only need to send the type!
     });
-    
-    // ❌ DO NOT CALL fetchSecrets() or window.location.reload() HERE!
-    
+
+    if (!response.ok) {
+      throw new Error("Failed to save to database");
+    }
   } catch (error) {
     console.error("Failed to save reaction:", error);
+    // If you want to be really advanced, you could revert the UI update here if it fails!
   }
 };
 
