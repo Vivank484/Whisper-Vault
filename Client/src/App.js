@@ -247,31 +247,55 @@ const filteredSecrets = (secrets || []).filter(s => {
     } catch (e) { console.error("Delete failed"); }
   };
 
-  const handleReaction = async (secretId, type) => {
-    if (!token) return setAuthModal('login');
-    setAnimatingId({ id: secretId, type }); setTimeout(() => setAnimatingId(null), 500);
+const handleReaction = async (secretId, type) => {
+  if (!token) return setAuthModal('login');
+  
+  setAnimatingId({ id: secretId, type });
+  setTimeout(() => setAnimatingId(null), 500);
 
-    setSecrets(currentSecrets => currentSecrets.map(secret => {
-      if (secret.id === secretId) {
-        const isRemoving = secret.userReaction === type;
-        const isSwitching = secret.userReaction && secret.userReaction !== type;
-        let newLikes = secret.likes, newDislikes = secret.dislikes;
-        
-        if (isRemoving) { type === 'like' ? newLikes-- : newDislikes--; } 
-        else {
-          type === 'like' ? newLikes++ : newDislikes++;
-          if (isSwitching) { secret.userReaction === 'like' ? newLikes-- : newDislikes--; }
+  // 1. INSTANT UI UPDATE (No refreshing!)
+  setSecrets(currentSecrets => currentSecrets.map(secret => {
+    if (secret.id === secretId) {
+      const isRemoving = secret.userReaction === type;
+      const isSwitching = secret.userReaction && secret.userReaction !== type;
+      let newLikes = secret.likes || 0;
+      let newDislikes = secret.dislikes || 0;
+
+      if (isRemoving) {
+        // User clicked the same button again (removing their reaction)
+        type === 'like' ? newLikes-- : newDislikes--;
+        return { ...secret, likes: newLikes, dislikes: newDislikes, userReaction: null };
+      } else {
+        // User clicked a new reaction
+        type === 'like' ? newLikes++ : newDislikes++;
+        if (isSwitching) {
+          // If they switched from like to dislike (or vice versa), remove the old one
+          type === 'like' ? newDislikes-- : newLikes--;
         }
-        return { ...secret, likes: newLikes, dislikes: newDislikes, userReaction: isRemoving ? null : type };
+        return { ...secret, likes: newLikes, dislikes: newDislikes, userReaction: type };
       }
-      return secret;
-    }));
+    }
+    return secret;
+  }));
 
-    try {
-      await fetch(`${API_URL}/secrets/${secretId}/react`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ type }) });
-      fetchSecrets(); 
-    } catch (e) {}
-  };
+  // 2. SILENT BACKGROUND UPDATE
+  try {
+    // ⚠️ Keep whatever your existing fetch or supabase call was here!
+    await fetch(`${API_URL}/reactions`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify({ secretId, type })
+    });
+    
+    // ❌ DO NOT CALL fetchSecrets() or window.location.reload() HERE!
+    
+  } catch (error) {
+    console.error("Failed to save reaction:", error);
+  }
+};
 
   const postReply = async (secretId) => {
     if (!replyText.trim() || !token) return;
