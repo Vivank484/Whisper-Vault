@@ -202,8 +202,7 @@ const generateMask = (id) => {
 app.post('/api/secrets', authenticate, async (req, res) => {
   try {
     const { content, mood } = req.body;
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const { data, error } = await supabase.from('secrets').insert([{ content, mood, authorId: req.userId, expiresAt }]).select().single();
+    const { data, error } = await supabase.from('secrets').insert([{ content, mood, authorId: req.userId}]).select().single();
     if (error) throw error;
     res.json(data);
   } catch (err) { res.status(500).json({ error: "Failed to whisper" }); }
@@ -211,11 +210,9 @@ app.post('/api/secrets', authenticate, async (req, res) => {
 
 app.get('/api/secrets', optionalAuth, async (req, res) => {
   try {
-    const now = new Date().toISOString();
     const { data: secrets, error } = await supabase
       .from('secrets')
       .select('*, reactions(type, userId), replies(*)')
-      .gt('expiresAt', now)
       .order('createdAt', { ascending: false });
 
     if (error) throw error;
@@ -311,11 +308,6 @@ app.delete('/api/replies/:id', authenticate, async (req, res) => {
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: "Failed to delete" }); }
 });
-
-setInterval(async () => {
-  const now = new Date().toISOString();
-  await supabase.from('secrets').delete().lt('expiresAt', now);
-}, 3600000);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Advanced AI Server running on port ${PORT}`));
