@@ -550,6 +550,39 @@ const filteredSecrets = (secrets || []).filter(s => {
                     </motion.div>
                   )}
 
+                  {!isLoading && (
+  <div className="w-full max-w-3xl mx-auto mb-10">
+    <div className="relative w-full">
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <svg className="text-purple-400 opacity-70" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <input
+        type="text"
+        placeholder="Search the vault for keywords..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full bg-white/5 border border-purple-500/20 rounded-xl py-3.5 pl-12 pr-4 text-purple-100 placeholder-purple-300/40 focus:outline-none focus:border-purple-400/60 focus:ring-1 focus:ring-purple-400/50 transition-all shadow-lg backdrop-blur-sm"
+      />
+    </div>
+
+    {/* THE EMPTY STATE SITS RIGHT UNDER THE SEARCH BAR */}
+    {searchQuery !== '' && filteredSecrets.length === 0 && (
+      <div className="w-full mt-6 text-center py-16 px-6 bg-white/5 border border-purple-500/20 rounded-2xl backdrop-blur-sm">
+        <svg className="mx-auto h-14 w-14 text-purple-400/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <p className="text-purple-300 text-lg font-medium">No secrets found matching "{searchQuery}"</p>
+        <button onClick={() => setSearchQuery('')} className="mt-4 px-6 py-2 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 rounded-lg text-sm font-bold text-purple-300 uppercase tracking-widest transition-all">
+          Clear Search
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     
                     {isLoading ? (
@@ -567,44 +600,8 @@ const filteredSecrets = (secrets || []).filter(s => {
                           <div className={`w-1/2 h-3 rounded ${isDarkMode ? 'bg-white/5' : 'bg-purple-900/10'}`}></div>
                         </div>
                       ))
-                    ) : (
-                     <>
-                      {/* --- 🔍 THE FULL-WIDTH SEARCH BAR --- */}
-<div className="w-full mb-8 mt-6">
-  <div className="relative w-full">
-    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-      <svg className="text-purple-400 opacity-70" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-    </div>
-    <input
-      type="text"
-      placeholder="Search the vault for keywords..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      className="w-full bg-white/5 border border-purple-500/20 rounded-xl py-3.5 pl-12 pr-4 text-purple-100 placeholder-purple-300/40 focus:outline-none focus:border-purple-400/60 focus:ring-1 focus:ring-purple-400/50 transition-all shadow-lg backdrop-blur-sm"
-    />
-  </div>
-</div>
+                    ) : (          
 
-{/* --- 📭 THE FULL-WIDTH EMPTY STATE --- */}
-{searchQuery !== '' && filteredSecrets.length === 0 && (
-  <div className="w-full text-center py-16 px-6 bg-white/5 border border-purple-500/20 rounded-2xl backdrop-blur-sm mb-8">
-    <svg className="mx-auto h-14 w-14 text-purple-400/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-    </svg>
-    <p className="text-purple-300 text-lg font-medium">No secrets found matching "{searchQuery}"</p>
-    <p className="text-purple-400/60 text-sm mt-2 mb-6">Try adjusting your keywords or clearing the search.</p>
-    <button 
-      onClick={() => setSearchQuery('')} 
-      className="px-6 py-2 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 rounded-lg text-sm font-bold text-purple-300 uppercase tracking-widest transition-all"
-    >
-      Clear Search
-    </button>
-  </div>
-)}
-{/* 👇 YOUR EXISTING CODE STARTS HERE 👇 */}
                       <AnimatePresence>
                         {filteredSecrets.map((s) => {
                           const sTheme = MOOD_THEMES[s.mood] || MOOD_THEMES['Confession'];
@@ -689,8 +686,7 @@ const filteredSecrets = (secrets || []).filter(s => {
                             </motion.div>
                           );
                         })}
-                      </AnimatePresence>
-                      </>
+                      </AnimatePresence>                   
                     )}
                   </div>
                 </div>
