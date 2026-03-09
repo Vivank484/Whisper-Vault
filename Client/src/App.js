@@ -568,7 +568,7 @@ const filteredSecrets = (secrets || []).filter(s => {
                         </div>
                       ))
                     ) : (
-                      
+                     <>
                       {/* --- 🔍 THE FULL-WIDTH SEARCH BAR --- */}
 <div className="w-full mb-8 mt-6">
   <div className="relative w-full">
@@ -604,7 +604,6 @@ const filteredSecrets = (secrets || []).filter(s => {
     </button>
   </div>
 )}
-
 {/* 👇 YOUR EXISTING CODE STARTS HERE 👇 */}
                       <AnimatePresence>
                         {filteredSecrets.map((s) => {
@@ -691,6 +690,7 @@ const filteredSecrets = (secrets || []).filter(s => {
                           );
                         })}
                       </AnimatePresence>
+                      </>
                     )}
                   </div>
                 </div>
