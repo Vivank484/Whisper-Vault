@@ -112,6 +112,18 @@ export default function App() {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
 
+// 1. Add this state to track what the user is typing
+const [searchQuery, setSearchQuery] = useState('');
+
+// 2. Create the filtered array with safety checks so old data doesn't crash it
+const filteredSecrets = (secrets || []).filter(s => {
+  // If a secret somehow has no content, skip it safely
+  if (!s || !s.content) return false; 
+  
+  // Check if the secret's content includes the search word (case-insensitive)
+  return s.content.toLowerCase().includes(searchQuery.toLowerCase());
+});
+
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   useEffect(() => { 
@@ -557,7 +569,40 @@ export default function App() {
                       ))
                     ) : (
                       <AnimatePresence>
-                        {secrets.map((s) => {
+                        {/* 👇 2. PASTE THIS RIGHT ABOVE YOUR SECRETS MAP 👇 */}
+
+{/* THE SEARCH BAR */}
+<div className="relative mb-8 max-w-2xl mx-auto w-full">
+  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 opacity-70" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+  <input
+    type="text"
+    placeholder="Search the vault for keywords..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="w-full bg-white/5 border border-purple-500/20 rounded-xl py-3 pl-12 pr-4 text-purple-100 placeholder-purple-300/40 focus:outline-none focus:border-purple-400/60 focus:ring-1 focus:ring-purple-400/50 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] backdrop-blur-sm"
+  />
+</div>
+
+{/* THE EMPTY STATE MESSAGE */}
+{searchQuery !== '' && filteredSecrets.length === 0 && (
+  <div className="text-center py-12 bg-white/5 border border-purple-500/20 rounded-2xl backdrop-blur-sm mb-8 max-w-2xl mx-auto">
+    <svg className="mx-auto h-12 w-12 text-purple-400/50 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+    <p className="text-purple-300 font-medium">No secrets found matching "{searchQuery}"</p>
+    <button 
+      onClick={() => setSearchQuery('')} 
+      className="mt-4 text-xs font-bold text-purple-400 hover:text-purple-300 uppercase tracking-widest transition-colors"
+    >
+      Clear Search
+    </button>
+  </div>
+)}
+{/* 👆 ------------------------------------------ 👆 */}
+                        {filteredSecrets.map((s) => {
                           const sTheme = MOOD_THEMES[s.mood] || MOOD_THEMES['Confession'];
                           return (
                             <motion.div layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.3 }} key={s.id} className={`p-7 rounded-3xl border h-fit ${theme.card} transition-all duration-300`}>
