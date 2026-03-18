@@ -116,9 +116,13 @@ export default function App() {
 const [searchQuery, setSearchQuery] = useState('');
 
 // 2. Create the filtered array with safety checks so old data doesn't crash it
-const filteredSecrets = (secrets || []).filter(s => {
-  // If a secret somehow has no content, skip it safely
+// Ensure secrets is actually an array before trying to filter it
+const safeSecrets = Array.isArray(secrets) ? secrets : [];
+
+const filteredSecrets = safeSecrets.filter(s => {
   if (!s || !s.content) return false; 
+  return s.content.toLowerCase().includes(searchQuery.toLowerCase());
+});
   
   // Check if the secret's content includes the search word (case-insensitive)
   return s.content.toLowerCase().includes(searchQuery.toLowerCase());
