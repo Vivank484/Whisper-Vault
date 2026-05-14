@@ -137,7 +137,7 @@ app.post('/api/secrets/analyze', authenticate, async (req, res) => {
     const { content, mood } = req.body;
     
     // We went back to 2.5-flash since we know it works on your machine!
-   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a strict JSON-only data processor. Analyze this secret: "${content}"
     Respond ONLY with a valid JSON object matching this exact structure: { "toxic": false, "suggestedMood": "Confession" }
@@ -251,7 +251,7 @@ app.get('/api/secrets/me', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Failed to fetch private vault" }); }
 });
 
-app.post('/api/secrets/:id/react', authenticate, async (req, res) => {
+gemini('/api/secrets/:id/react', authenticate, async (req, res) => {
   try {
     const secretId = req.params.id;
     const { type } = req.body; 
@@ -281,7 +281,7 @@ app.post('/api/secrets/:id/ask-keeper', authenticate, async (req, res) => {
     const { data: secret } = await supabase.from('secrets').select('*').eq('id', req.params.id).single();
     if (!secret) return res.status(404).json({error: "Secret not found"});
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const keeperPrompt = `A user shared a secret: "${secret.content}". Write a short, deeply empathetic 1-2 sentence reply. Validate their feelings. Do not give advice. Sign it "- The Vault Keeper"`;
     const keeperResult = await model.generateContent(keeperPrompt);
 
